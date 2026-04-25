@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Case all'Asta</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;background:linear-gradient(135deg,#0d47a1 0%,#1565c0 40%,#1976d2 100%);display:flex;align-items:center;justify-content:center;padding:24px 16px;font-family:'Segoe UI',sans-serif}
+  .card{background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:100%;max-width:580px;overflow:hidden}
+  .header{background:linear-gradient(135deg,#1565c0,#0d47a1);padding:24px 28px;display:flex;align-items:center;gap:14px}
+  .logo{width:48px;height:48px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+  .header h1{color:#fff;font-size:20px;font-weight:800;letter-spacing:-.5px}
+  .header p{color:rgba(255,255,255,.85);font-size:13px;margin-top:2px}
+  .badge{display:inline-block;background:rgba(255,255,255,.25);color:#fff;font-size:11px;font-weight:700;border-radius:20px;padding:2px 10px;margin-top:4px;letter-spacing:.5px}
+  .body{padding:28px 28px 24px}
+  .info-badge{display:flex;align-items:center;gap:8px;background:#e3f2fd;border:1.5px solid #90caf9;border-radius:10px;padding:8px 14px;margin-bottom:18px;font-size:13px;color:#0d47a1;font-weight:600}
+  label{font-size:12px;font-weight:700;color:#555;letter-spacing:.5px;margin-bottom:6px;display:block;text-transform:uppercase}
+  label span{font-weight:400;text-transform:none;font-size:11px}
+  .field{margin-bottom:18px;position:relative}
+  input,select{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid #e0e0e0;font-size:15px;outline:none;background:#fafafa;font-family:inherit;transition:border .2s}
+  input:focus,select:focus{border-color:#1565c0}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+  .divider{border-top:1.5px solid #f0f0f0;margin:8px 0 18px}
+  #city-list{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #e0e0e0;border-radius:10px;max-height:200px;overflow-y:auto;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+  .city-item{padding:9px 14px;cursor:pointer;font-size:14px}
+  .city-item:hover,.city-item.active{background:#e3f2fd;color:#1565c0}
+  .url-label{font-size:11px;color:#999;margin-bottom:6px;font-weight:600}
+  .url-box{background:#f5f5f5;border-radius:10px;padding:10px 14px;font-size:11px;color:#777;word-break:break-all;margin-bottom:20px;line-height:1.6;border:1px solid #e8e8e8}
+  .btn{width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;font-size:16px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(21,101,192,.4);display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:opacity .15s}
+  .btn:hover{opacity:.9}
+  .footer{text-align:center;font-size:11px;color:#bbb;margin-top:14px}
+  .section-title{font-size:12px;font-weight:700;color:#1565c0;letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+  .tipologia-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+  .tipo-btn{padding:8px 6px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fafafa;font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;color:#555}
+  .tipo-btn.selected{border-color:#1565c0;background:#e3f2fd;color:#0d47a1}
+  .tipo-btn:hover{border-color:#90caf9}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="logo">🏠</div>
+    <div>
+      <h1>Case all'Asta</h1>
+      <p>Trova immobili all'asta su Immobiliare.it</p>
+      <span class="badge">⚡ ASTE GIUDIZIARIE & PRIVATE</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="info-badge">
+      <span style="font-size:18px">⚖️</span>
+      Immobili all'asta con prezzi spesso <strong style="margin:0 4px">sotto mercato</strong>
+    </div>
+
+    <div class="field">
+      <label>Città</label>
+      <input type="text" id="city-input" placeholder="Cerca città..." autocomplete="off"/>
+      <div id="city-list"></div>
+    </div>
+
+    <div class="field">
+      <label>Quartiere / Zona <span>(opzionale)</span></label>
+      <input type="text" id="zone" placeholder="es. Parioli, Navigli, Brera..."/>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-title">🏠 Tipologia immobile</div>
+    <div class="tipologia-grid">
+      <div class="tipo-btn selected" data-tipo="">Tutte</div>
+      <div class="tipo-btn" data-tipo="appartamento">Appartamento</div>
+      <div class="tipo-btn" data-tipo="villa">Villa</div>
+      <div class="tipo-btn" data-tipo="terreno">Terreno</div>
+      <div class="tipo-btn" data-tipo="negozio">Negozio</div>
+      <div class="tipo-btn" data-tipo="ufficio">Ufficio</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row">
+      <div>
+        <label>Prezzo base min</label>
+        <select id="prezzoMin">
+          <option value="">Nessun limite</option>
+          <option value="10000">10.000 €</option>
+          <option value="20000">20.000 €</option>
+          <option value="30000">30.000 €</option>
+          <option value="50000">50.000 €</option>
+          <option value="80000">80.000 €</option>
+          <option value="100000">100.000 €</option>
+          <option value="150000">150.000 €</option>
+          <option value="200000">200.000 €</option>
+          <option value="300000">300.000 €</option>
+          <option value="500000">500.000 €</option>
+        </select>
+      </div>
+      <div>
+        <label>Prezzo base max</label>
+        <select id="prezzoMax">
+          <option value="">Nessun limite</option>
+          <option value="10000">10.000 €</option>
+          <option value="20000">20.000 €</option>
+          <option value="30000">30.000 €</option>
+          <option value="50000">50.000 €</option>
+          <option value="80000">80.000 €</option>
+          <option value="100000">100.000 €</option>
+          <option value="150000">150.000 €</option>
+          <option value="200000">200.000 €</option>
+          <option value="300000">300.000 €</option>
+          <option value="500000">500.000 €</option>
+          <option value="750000">750.000 €</option>
+          <option value="1000000">1.000.000 €</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Locali minimi</label>
+        <select id="locali">
+          <option value="">Qualsiasi</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5+</option>
+        </select>
+      </div>
+      <div>
+        <label>Superficie min</label>
+        <select id="superficie">
+          <option value="">Nessun limite</option>
+          <option value="30">30 m²</option>
+          <option value="50">50 m²</option>
+          <option value="70">70 m²</option>
+          <option value="100">100 m²</option>
+          <option value="150">150 m²</option>
+          <option value="200">200 m²</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="url-label">🔗 URL GENERATO</div>
+    <div class="url-box" id="url-preview"></div>
+
+    <a id="search-btn" class="btn" href="#" target="_blank" rel="noopener noreferrer">
+      Cerca Aste su Immobiliare.it
+    </a>
+    <div class="footer">Verrai reindirizzato a immobiliare.it con tutti i filtri preimpostati</div>
+  </div>
+</div>
+
+<script>
+const CITIES=[{label:"Roma",slug:"roma"},{label:"Milano",slug:"milano"},{label:"Napoli",slug:"napoli"},{label:"Torino",slug:"torino"},{label:"Palermo",slug:"palermo"},{label:"Genova",slug:"genova"},{label:"Bologna",slug:"bologna"},{label:"Firenze",slug:"firenze"},{label:"Bari",slug:"bari"},{label:"Catania",slug:"catania"},{label:"Venezia",slug:"venezia"},{label:"Verona",slug:"verona"},{label:"Messina",slug:"messina"},{label:"Padova",slug:"padova"},{label:"Trieste",slug:"trieste"},{label:"Taranto",slug:"taranto"},{label:"Brescia",slug:"brescia"},{label:"Prato",slug:"prato"},{label:"Reggio Calabria",slug:"reggio-di-calabria"},{label:"Modena",slug:"modena"},{label:"Reggio Emilia",slug:"reggio-nell-emilia"},{label:"Perugia",slug:"perugia"},{label:"Ravenna",slug:"ravenna"},{label:"Livorno",slug:"livorno"},{label:"Cagliari",slug:"cagliari"},{label:"Foggia",slug:"foggia"},{label:"Rimini",slug:"rimini"},{label:"Salerno",slug:"salerno"},{label:"Ferrara",slug:"ferrara"},{label:"Sassari",slug:"sassari"},{label:"Latina",slug:"latina"},{label:"Monza",slug:"monza"},{label:"Siracusa",slug:"siracusa"},{label:"Bergamo",slug:"bergamo"},{label:"Pescara",slug:"pescara"},{label:"Trento",slug:"trento"},{label:"Vicenza",slug:"vicenza"},{label:"Bolzano",slug:"bolzano"},{label:"Ancona",slug:"ancona"},{label:"Arezzo",slug:"arezzo"},{label:"Udine",slug:"udine"},{label:"Lecce",slug:"lecce"},{label:"Pisa",slug:"pisa"},{label:"Como",slug:"como"},{label:"Catanzaro",slug:"catanzaro"}];
+
+let selectedSlug="roma";
+let selectedTipo="";
+
+const cityInput=document.getElementById("city-input");
+const cityList=document.getElementById("city-list");
+cityInput.value="Roma";
+
+function slugify(s){return s.toLowerCase().replace(/\s+/g,"-").replace(/[àáâä]/g,"a").replace(/[èéêë]/g,"e").replace(/[ìíîï]/g,"i").replace(/[òóôö]/g,"o").replace(/[ùúûü]/g,"u").replace(/[^a-z0-9-]/g,"")}
+
+function renderCities(filter=""){
+  const f=CITIES.filter(c=>c.label.toLowerCase().includes(filter.toLowerCase()));
+  cityList.innerHTML=f.length?f.map(c=>`<div class="city-item${c.slug===selectedSlug?' active':''}" data-slug="${c.slug}" data-label="${c.label}">${c.label}</div>`).join(""):`<div class="city-item" style="color:#aaa">Nessuna città trovata</div>`;
+}
+
+cityInput.addEventListener("focus",()=>{cityList.style.display="block";cityInput.value="";renderCities()});
+cityInput.addEventListener("input",()=>renderCities(cityInput.value));
+document.addEventListener("click",e=>{if(!e.target.closest(".field")){cityList.style.display="none";const c=CITIES.find(x=>x.slug===selectedSlug);if(c)cityInput.value=c.label}});
+cityList.addEventListener("mousedown",e=>{const item=e.target.closest(".city-item");if(item&&item.dataset.slug){selectedSlug=item.dataset.slug;cityInput.value=item.dataset.label;cityList.style.display="none";buildUrl()}});
+
+document.querySelectorAll(".tipo-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tipo-btn").forEach(b=>b.classList.remove("selected"));
+    btn.classList.add("selected");
+    selectedTipo=btn.dataset.tipo;
+    buildUrl();
+  });
+});
+
+function buildUrl(){
+  const zone=document.getElementById("zone").value.trim();
+  const pMin=document.getElementById("prezzoMin").value;
+  const pMax=document.getElementById("prezzoMax").value;
+  const locali=document.getElementById("locali").value;
+  const sup=document.getElementById("superficie").value;
+  let path=`https://www.immobiliare.it/aste-immobiliari/${selectedSlug}/`;
+  if(zone)path+=slugify(zone)+"/";
+  const params=new URLSearchParams();
+  if(pMin)params.set("prezzoMinimo",pMin);
+  if(pMax)params.set("prezzoMassimo",pMax);
+  if(locali){params.set("localiMinimo",locali);if(locali==="5")params.set("localiMassimo","99")}
+  if(sup)params.set("superficieMinima",sup);
+  if(selectedTipo)params.set("tipologia",selectedTipo);
+  const query=params.toString();
+  const url=query?`${path}?${query}`:path;
+  document.getElementById("url-preview").textContent=url;
+  document.getElementById("search-btn").href=url;
+}
+
+["zone","prezzoMin","prezzoMax","locali","superficie"].forEach(id=>{
+  document.getElementById(id).addEventListener("change",buildUrl);
+});
+document.getElementById("zone").addEventListener("input",buildUrl);
+buildUrl();
+</script>
+</body>
+</html>
